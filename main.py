@@ -1,6 +1,8 @@
 import random
 import matplotlib.pyplot as plt
 import pandas as pd
+import time
+import numpy as np
 
 def selection_sort(arr):
     n = len(arr)
@@ -12,48 +14,53 @@ def selection_sort(arr):
             if arr[j] < arr[min_idx]:
                 min_idx = j
         arr[i], arr[min_idx] = arr[min_idx], arr[i]
-    return k
+
+def selection_sort_time(arr):
+    start = time.time()
+    selection_sort(arr)
+    end = time.time()
+    return end - start
 
 def insertion_sort(arr):
     n = len(arr)
-    k = 0
     for i in range(1, n):
         key = arr[i]
         j = i - 1
         while j >= 0 and arr[j] > key:
             arr[j + 1] = arr[j]
             j -= 1
-            k += 1
         arr[j + 1] = key
-        k += 1
-    return k
+
+def insertion_sort_time(arr):
+    start = time.time()
+    insertion_sort(arr)
+    end = time.time()
+    return end - start
 
 def bubble_sort(arr):
     n = len(arr)
-    k = 0
     for i in range(n):
         swapped = False
         for j in range(0, n-i-1):
-            k += 1
             if arr[j] > arr[j+1]:
                 arr[j], arr[j+1] = arr[j+1], arr[j]
                 swapped = True
         if not swapped:
             break
-    return k
 
-def merge_sort(arr, k=0):
+def bubble_sort_time(arr):
+    start = time.time()
+    bubble_sort(arr)
+    end = time.time()
+    return end - start
+
+def merge_sort(arr):
     if len(arr) > 1:
         mid = len(arr) // 2
         left_half = arr[:mid]
         right_half = arr[mid:]
-
-        k = merge_sort(left_half, k)
-        k = merge_sort(right_half, k)
-
         i = j = l = 0
         while i < len(left_half) and j < len(right_half):
-            k += 1
             if left_half[i] < right_half[j]:
                 arr[l] = left_half[i]
                 i += 1
@@ -72,12 +79,15 @@ def merge_sort(arr, k=0):
             j += 1
             l += 1
 
-    return k
+def merge_sort_time(arr):
+    start = time.time()
+    merge_sort(arr)
+    end = time.time()
+    return end - start
 
 def shell_sort(arr):
     n = len(arr)
     gap = n // 2
-    k = 0
 
     while gap > 0:
         for i in range(gap, n):
@@ -86,35 +96,14 @@ def shell_sort(arr):
             while j >= gap and arr[j - gap] > temp:
                 arr[j] = arr[j - gap]
                 j -= gap
-                k += 1
             arr[j] = temp
-            k += 1
         gap //= 2
 
-    return k
-
-def quick_sort(arr, k=0):
-    if len(arr) <= 1:
-        return arr, k
-
-    pivot = arr[len(arr) // 2]
-    left = []
-    middle = []
-    right = []
-
-    for x in arr:
-        k += 1
-        if x < pivot:
-            left.append(x)
-        elif x == pivot:
-            middle.append(x)
-        else:
-            right.append(x)
-
-    sorted_left, k = quick_sort(left, k)
-    sorted_right, k = quick_sort(right, k)
-
-    return sorted_left + middle + sorted_right, k
+def shell_sort_time(arr):
+    start = time.time()
+    shell_sort(arr)
+    end = time.time()
+    return end - start
 
 def heap_sort(arr):
     n = len(arr)
@@ -147,32 +136,26 @@ def heapify(arr, n, i, k):
 
     return k
 
-def quick_sort(arr, k=0):
+def heap_sort_time(arr):
+    start = time.time()
+    heap_sort(arr)
+    end = time.time()
+    return end - start
+
+def quick_sort(arr):
     if len(arr) <= 1:
-        return arr, k
+        return arr
+    pivot = arr[len(arr) // 2]  # выбор опорного элемента
+    left = [x for x in arr if x < pivot]  # элементы меньше опорного
+    middle = [x for x in arr if x == pivot]  # элементы равные опорному
+    right = [x for x in arr if x > pivot]  # элементы больше опорного
+    return quick_sort(left) + middle + quick_sort(right)
 
-    pivot = arr[len(arr) // 2]
-    left = []
-    middle = []
-    right = []
-
-    for x in arr:
-        k += 1
-        if x < pivot:
-            left.append(x)
-        elif x == pivot:
-            middle.append(x)
-        else:
-            right.append(x)
-
-    sorted_left, k = quick_sort(left, k)
-    sorted_right, k = quick_sort(right, k)
-
-    return sorted_left + middle + sorted_right, k
-
-def quick_sort_wrapper(arr):
-    _, iterations = quick_sort(arr)
-    return iterations
+def quick_sort_time(arr):
+    start = time.time()  # зафиксируем время начала
+    quick_sort(arr)
+    end = time.time()  # зафиксируем время конца
+    return end - start
 
 def generate_arrays(n):
     best_case = list(range(1, n + 1))
@@ -192,13 +175,13 @@ def generate_arrays(n):
     return best_case, almost_sorted_case, worst_case, avg_case
 
 sorts = {
-    "Сортировка выбором": selection_sort,
-    "Сортировка вставками": insertion_sort,
-    "Сортировка пузырьком": bubble_sort,
-    "Сортировка слиянием": merge_sort,
-    "Сортировка Шелла": shell_sort,
-    "Быстрая сортировка": quick_sort_wrapper,
-    "Пирамидальная сортировка": heap_sort
+    "Сортировка выбором": selection_sort_time,
+    "Сортировка вставками": insertion_sort_time,
+    "Сортировка пузырьком": bubble_sort_time,
+    "Сортировка слиянием": merge_sort_time,
+    "Сортировка Шелла": shell_sort_time,
+    "Быстрая сортировка": quick_sort_time,
+    "Пирамидальная сортировка": heap_sort_time
 }
 
 results = []
@@ -207,47 +190,64 @@ for sort_name, sort_func in sorts.items():
     print(sort_name)
     sizes = range(1000, 10001, 500)
 
-    best_case_iterations = []
-    almost_sorted_case_iterations = []
-    worst_case_iterations = []
-    avg_case_iterations = []
+    best_case_time = []
+    almost_sorted_case_time = []
+    worst_case_time = []
+    avg_case_time = []
 
     for size in sizes:
         best_case, almost_sorted_case, worst_case, avg_case = generate_arrays(size)
 
-        iterations = sort_func(best_case)
-        iterations_best = iterations
-        best_case_iterations.append(iterations)
-        print(f"Отсортированный: {size} элементов, итераций: {iterations}")
+        result_time = sort_func(best_case)
+        time_best = result_time
+        best_case_time.append(result_time)
+        print(f"Отсортированный: {size} элементов, время: {result_time}")
 
-        iterations = sort_func(almost_sorted_case)
-        iterations_almost = iterations
-        almost_sorted_case_iterations.append(iterations)
-        print(f"Почти отсортированный случай: {size} элементов, итераций: {iterations}")
+        result_time = sort_func(almost_sorted_case)
+        time_almost = result_time
+        almost_sorted_case_time.append(result_time)
+        print(f"Почти отсортированный случай: {size} элементов, время: {result_time}")
 
-        iterations = sort_func(avg_case)
-        iterations_avg = iterations
-        avg_case_iterations.append(iterations)
-        print(f"Случайно отсортированный: {size} элементов, итераций: {iterations}")
+        result_time = sort_func(avg_case)
+        time_avg = result_time
+        avg_case_time.append(result_time)
+        print(f"Случайно отсортированный: {size} элементов, время: {result_time}")
 
-        iterations = sort_func(worst_case)
-        iterations_worst = iterations
-        worst_case_iterations.append(iterations)
-        print(f"Обратно отсортированный: {size} элементов, итераций: {iterations}")
+        result_time = sort_func(worst_case)
+        time_worst = result_time
+        worst_case_time.append(result_time)
+        print(f"Обратно отсортированный: {size} элементов, время: {result_time}")
 
         results.append([
-            sort_name, size, iterations_best, iterations_almost,
-            iterations_avg, iterations_worst
+            sort_name, size, time_best, time_almost,
+            time_avg, time_worst
         ])
 
     plt.figure()
-    plt.plot(sizes, best_case_iterations, linestyle='-', color='b', label='Лучший случай')
-    plt.plot(sizes, almost_sorted_case_iterations, linestyle='-', color='g', label='Почти отсортированный случай')
-    plt.plot(sizes, avg_case_iterations, linestyle='-', color='r', label='Средний случай')
-    plt.plot(sizes, worst_case_iterations, linestyle='-', color='m', label='Худший случай')
+
+    plt.plot(sizes, best_case_time, marker='o', ms='1', color='b', linestyle=' ', label='Лучший случай')
+    coeffs_best = np.polyfit(sizes, best_case_time, deg=2)
+    best_fit_line = np.polyval(coeffs_best, sizes)
+    plt.plot(sizes, best_fit_line, color='b')
+
+    plt.plot(sizes, almost_sorted_case_time, marker='o', ms='1', color='g', linestyle=' ', label='Почти отсортированный случай')
+    coeffs_almost = np.polyfit(sizes, almost_sorted_case_time, deg=2)
+    almost_fit_line = np.polyval(coeffs_almost, sizes)
+    plt.plot(sizes, almost_fit_line, color='g')
+
+    plt.plot(sizes, avg_case_time, marker='o', ms='1', color='r', linestyle=' ', label='Средний случай')
+    coeffs_avg = np.polyfit(sizes, avg_case_time, deg=2)
+    avg_fit_line = np.polyval(coeffs_avg, sizes)
+    plt.plot(sizes, avg_fit_line, color='r')
+
+    plt.plot(sizes, worst_case_time, marker='o', ms='1', color='m', linestyle=' ', label='Худший случай')
+    coeffs_worst = np.polyfit(sizes, worst_case_time, deg=2)
+    worst_fit_line = np.polyval(coeffs_worst, sizes)
+    plt.plot(sizes, worst_fit_line, color='m')
+
     plt.title(sort_name)
     plt.xlabel('Размер массива')
-    plt.ylabel('Количество итераций')
+    plt.ylabel('Время работы')
     plt.legend()
     plt.show()
 
