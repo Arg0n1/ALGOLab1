@@ -6,11 +6,9 @@ import numpy as np
 
 def selection_sort(arr):
     n = len(arr)
-    k = 0
     for i in range(n):
         min_idx = i
         for j in range(i+1, n):
-            k += 1
             if arr[j] < arr[min_idx]:
                 min_idx = j
         arr[i], arr[min_idx] = arr[min_idx], arr[i]
@@ -105,20 +103,53 @@ def shell_sort_time(arr):
     end = time.time()
     return end - start
 
-def heap_sort(arr):
+def shell_sort_hibbard(arr):
     n = len(arr)
-    k = 0
+    gap = 1
 
-    for i in range(n // 2 - 1, -1, -1):
-        k = heapify(arr, n, i, k)
+    while gap < n // 2:
+        gap = 2 * gap + 1
 
-    for i in range(n - 1, 0, -1):
-        arr[i], arr[0] = arr[0], arr[i]
-        k = heapify(arr, i, 0, k)
+    while gap > 0:
+        for i in range(gap, n):
+            temp = arr[i]
+            j = i
+            while j >= gap and arr[j - gap] > temp:
+                arr[j] = arr[j - gap]
+                j -= gap
+            arr[j] = temp
+        gap //= 2
 
-    return k
+def shell_sort_hibbard_time(arr):
+    start = time.time()
+    shell_sort_hibbard(arr)
+    end = time.time()
+    return end - start
 
-def heapify(arr, n, i, k):
+def shell_sort_pratt(arr):
+    n = len(arr)
+    gap = 1
+
+    while gap < n // 3:
+        gap = 3 * gap + 1
+
+    while gap > 0:
+        for i in range(gap, n):
+            temp = arr[i]
+            j = i
+            while j >= gap and arr[j - gap] > temp:
+                arr[j] = arr[j - gap]
+                j -= gap
+            arr[j] = temp
+        gap //= 3
+
+def shell_sort_pratt_time(arr):
+    start = time.time()
+    shell_sort_pratt(arr)
+    end = time.time()
+    return end - start
+
+def heapify(arr, n, i):
     largest = i
     left = 2 * i + 1
     right = 2 * i + 2
@@ -131,10 +162,18 @@ def heapify(arr, n, i, k):
 
     if largest != i:
         arr[i], arr[largest] = arr[largest], arr[i]
-        k += 1
-        k = heapify(arr, n, largest, k)
 
-    return k
+        heapify(arr, n, largest)
+
+def heap_sort(arr):
+    n = len(arr)
+
+    for i in range(n // 2 - 1, -1, -1):
+        heapify(arr, n, i)
+
+    for i in range(n - 1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+        heapify(arr, i, 0)
 
 def heap_sort_time(arr):
     start = time.time()
@@ -145,16 +184,16 @@ def heap_sort_time(arr):
 def quick_sort(arr):
     if len(arr) <= 1:
         return arr
-    pivot = arr[len(arr) // 2]  # выбор опорного элемента
-    left = [x for x in arr if x < pivot]  # элементы меньше опорного
-    middle = [x for x in arr if x == pivot]  # элементы равные опорному
-    right = [x for x in arr if x > pivot]  # элементы больше опорного
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
     return quick_sort(left) + middle + quick_sort(right)
 
 def quick_sort_time(arr):
-    start = time.time()  # зафиксируем время начала
+    start = time.time()
     quick_sort(arr)
-    end = time.time()  # зафиксируем время конца
+    end = time.time()
     return end - start
 
 def generate_arrays(n):
@@ -180,6 +219,8 @@ sorts = {
     "Сортировка пузырьком": bubble_sort_time,
     "Сортировка слиянием": merge_sort_time,
     "Сортировка Шелла": shell_sort_time,
+    "Сортировка Шелла (последовательность Хиббарда)": shell_sort_hibbard_time,
+    "Сортировка Шелла (последовательность Пратта)": shell_sort_pratt_time,
     "Быстрая сортировка": quick_sort_time,
     "Пирамидальная сортировка": heap_sort_time
 }
@@ -224,7 +265,6 @@ for sort_name, sort_func in sorts.items():
         ])
 
     plt.figure()
-
     plt.plot(sizes, best_case_time, marker='o', ms='1', color='b', linestyle=' ', label='Лучший случай')
     coeffs_best = np.polyfit(sizes, best_case_time, deg=2)
     best_fit_line = np.polyval(coeffs_best, sizes)
@@ -244,7 +284,6 @@ for sort_name, sort_func in sorts.items():
     coeffs_worst = np.polyfit(sizes, worst_case_time, deg=2)
     worst_fit_line = np.polyval(coeffs_worst, sizes)
     plt.plot(sizes, worst_fit_line, color='m')
-
     plt.title(sort_name)
     plt.xlabel('Размер массива')
     plt.ylabel('Время работы')
