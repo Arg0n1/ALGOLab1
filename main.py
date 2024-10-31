@@ -207,7 +207,6 @@ def generate_arrays(n):
 
     worst_case = list(range(n, 0, -1))
 
-    # Случайный массив (средний случай)
     avg_case = best_case[:]
     random.shuffle(avg_case)
 
@@ -229,7 +228,7 @@ results = []
 
 for sort_name, sort_func in sorts.items():
     print(sort_name)
-    sizes = range(1000, 10001, 500)
+    sizes = range(1000, 2001, 100)
 
     best_case_time = []
     almost_sorted_case_time = []
