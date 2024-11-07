@@ -198,18 +198,14 @@ def quick_sort_time(arr):
 
 def generate_arrays(n):
     best_case = list(range(1, n + 1))
-
     almost_sorted_case = best_case[:]
     num_swaps = int(0.1 * n)
     for _ in range(num_swaps):
         i, j = random.sample(range(n), 2)
         almost_sorted_case[i], almost_sorted_case[j] = almost_sorted_case[j], almost_sorted_case[i]
-
     worst_case = list(range(n, 0, -1))
-
     avg_case = best_case[:]
     random.shuffle(avg_case)
-
     return best_case, almost_sorted_case, worst_case, avg_case
 
 sorts = {
@@ -225,10 +221,11 @@ sorts = {
 }
 
 results = []
+scale_factor = 1_000_000
 
 for sort_name, sort_func in sorts.items():
     print(sort_name)
-    sizes = range(1000, 2001, 100)
+    sizes = range(1000, 10001, 500)
 
     best_case_time = []
     almost_sorted_case_time = []
@@ -246,7 +243,7 @@ for sort_name, sort_func in sorts.items():
         result_time = sort_func(almost_sorted_case)
         time_almost = result_time
         almost_sorted_case_time.append(result_time)
-        print(f"Почти отсортированный случай: {size} элементов, время: {result_time}")
+        print(f"Почти отсортированный: {size} элементов, время: {result_time}")
 
         result_time = sort_func(avg_case)
         time_avg = result_time
@@ -264,29 +261,40 @@ for sort_name, sort_func in sorts.items():
         ])
 
     plt.figure()
-    plt.plot(sizes, best_case_time, marker='o', ms='1', color='b', linestyle=' ', label='Лучший случай')
+    plt.plot(sizes, best_case_time, marker='o', ms='1', color='b', linestyle=' ', label='Отсортированный')
     coeffs_best = np.polyfit(sizes, best_case_time, deg=2)
     best_fit_line = np.polyval(coeffs_best, sizes)
     plt.plot(sizes, best_fit_line, color='b')
+    plt.figtext(0.1, 0.17,
+                f"Отсортированный: {coeffs_best[0]:.2e} * x^2 + {coeffs_best[1]:.2e} * x + {coeffs_best[2]:.2e}")
 
-    plt.plot(sizes, almost_sorted_case_time, marker='o', ms='1', color='g', linestyle=' ', label='Почти отсортированный случай')
+    plt.plot(sizes, almost_sorted_case_time, marker='o', ms='1', color='g', linestyle=' ',
+             label='Почти отсортированный')
     coeffs_almost = np.polyfit(sizes, almost_sorted_case_time, deg=2)
     almost_fit_line = np.polyval(coeffs_almost, sizes)
     plt.plot(sizes, almost_fit_line, color='g')
+    plt.figtext(0.1, 0.12,
+                f"Почти отсортированный: {coeffs_almost[0]:.2e} * x^2 + {coeffs_almost[1]:.2e} * x + {coeffs_almost[2]:.2e}")
 
-    plt.plot(sizes, avg_case_time, marker='o', ms='1', color='r', linestyle=' ', label='Средний случай')
+    plt.plot(sizes, avg_case_time, marker='o', ms='1', color='r', linestyle=' ', label='Случайный')
     coeffs_avg = np.polyfit(sizes, avg_case_time, deg=2)
     avg_fit_line = np.polyval(coeffs_avg, sizes)
     plt.plot(sizes, avg_fit_line, color='r')
+    plt.figtext(0.1, 0.07,
+                f"Случайный: {coeffs_avg[0]:.2e} * x^2 + {coeffs_avg[1]:.2e} * x + {coeffs_avg[2]:.2e}")
 
-    plt.plot(sizes, worst_case_time, marker='o', ms='1', color='m', linestyle=' ', label='Худший случай')
+    plt.plot(sizes, worst_case_time, marker='o', ms='1', color='m', linestyle=' ', label='Обратно отсортированный')
     coeffs_worst = np.polyfit(sizes, worst_case_time, deg=2)
     worst_fit_line = np.polyval(coeffs_worst, sizes)
     plt.plot(sizes, worst_fit_line, color='m')
+    plt.figtext(0.1, 0.02,
+                f"Обратно отсортированный: {coeffs_worst[0]:.2e} * x^2 + {coeffs_worst[1]:.2e} * x + {coeffs_worst[2]:.2e}")
+
     plt.title(sort_name)
     plt.xlabel('Размер массива')
     plt.ylabel('Время работы')
     plt.legend()
+    plt.subplots_adjust(bottom=0.3)
     plt.show()
 
 df = pd.DataFrame(results, columns=[
